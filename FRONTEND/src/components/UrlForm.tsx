@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { createShortUrl } from "../api/shortUrl.api";
 
 export default function UrlForm() {
   const [url, setUrl] = useState("");
@@ -8,32 +8,34 @@ export default function UrlForm() {
   const [copied, setCopied] = useState(false);
   const shortUrlRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/create`,
-        { url }
-      );
-      setShortUrl(data.data.short_url);
-      // console.log(data.data.short_url)
-    } catch (error) {
-      console.error("Error creating short URl", error);
-    }
-  };
+  try {
+    const res = await createShortUrl(url);
+    // console.log("API Response:", res.data);
+
+    // Access the nested short_url
+    const short = res.data.data.short_url;
+    // console.log(short);
+
+    setShortUrl(short);
+  } catch (error) {
+    console.error("Error creating short URL", error);
+  }
+};
 
   const handleCopy = () => {
     if (shortUrlRef.current) {
-      shortUrlRef.current.select();
-      document.execCommand("Copy");
-      setCopied(true);
-
-      // rest after 1.5s
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 1500);
+      navigator.clipboard
+        .writeText(shortUrlRef.current.value)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text:", err);
+        });
     }
   };
 
