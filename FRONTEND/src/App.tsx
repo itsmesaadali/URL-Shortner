@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { Toaster } from "react-hot-toast";
 import { NotFound } from "./pages/NotFound";
+import { AppLayout } from "./components/Layout/AppLayout";
 
 function App() {
   return (
@@ -22,10 +23,12 @@ function App() {
       />
       <Router>
         <Routes>
+          <Route path="/" element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
       </Router>
     </>

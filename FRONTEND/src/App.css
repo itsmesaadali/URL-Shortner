@@ -1,74 +1,71 @@
 @import "tailwindcss";
 
-/* Root variables */
-@layer base {
-  :root {
-    /* Backgrounds */
-    --bg: hsl(210 30% 98%);
-    --surface: hsl(210 20% 100%);
-    --muted: hsl(210 10% 55%);
+/* Root variables - Light mode by default */
+:root {
+  /* Light mode colors */
+  --bg: hsl(210 30% 98%);
+  --surface: hsl(210 20% 100%);
+  --muted: hsl(210 10% 55%);
 
-    /* Primary */
-    --primary-50: hsl(220 100% 98%);
-    --primary-100: hsl(220 95% 92%);
-    --primary-200: hsl(220 90% 80%);
-    --primary-400: hsl(220 80% 55%);
-    --primary: hsl(220 75% 48%);
-    --primary-700: hsl(220 65% 35%);
-    --primary-900: hsl(220 60% 25%);
+  /* Primary */
+  --primary-50: hsl(220 100% 98%);
+  --primary-100: hsl(220 95% 92%);
+  --primary-200: hsl(220 90% 80%);
+  --primary-400: hsl(220 80% 55%);
+  --primary: hsl(220 75% 48%);
+  --primary-700: hsl(220 65% 35%);
+  --primary-900: hsl(220 60% 25%);
 
-    /* Accent */
-    --accent: hsl(18 90% 55%);
-    --accent-700: hsl(18 85% 45%);
+  /* Accent */
+  --accent: hsl(18 90% 55%);
+  --accent-700: hsl(18 85% 45%);
 
-    /* Status colors */
-    --success: hsl(142 60% 35%);
-    --warning: hsl(45 90% 50%);
-    --danger: hsl(350 75% 47%);
+  /* Status colors */
+  --success: hsl(142 60% 35%);
+  --warning: hsl(45 90% 50%);
+  --danger: hsl(350 75% 47%);
 
-    /* Text */
-    --text: hsl(210 15% 10%);
-    --text-inverse: hsl(210 15% 95%);
+  /* Text */
+  --text: hsl(210 15% 10%);
+  --text-inverse: hsl(210 15% 95%);
 
-    /* Misc */
-    --focus: hsl(210 100% 55%);
-    --radius: 0.5rem;
-  }
+  /* Misc */
+  --focus: hsl(210 100% 55%);
+  --radius: 0.5rem;
+}
 
-  /* Dark mode */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: hsl(220 15% 7%);
-      --surface: hsl(220 12% 10%);
-      --muted: hsl(220 8% 60%);
+/* Dark mode overrides */
+.dark {
+  --bg: hsl(220 15% 7%);
+  --surface: hsl(220 12% 10%);
+  --muted: hsl(220 8% 60%);
 
-      --primary-50: hsl(220 40% 6%);
-      --primary-100: hsl(220 40% 8%);
-      --primary-200: hsl(220 45% 12%);
-      --primary-400: hsl(220 60% 22%);
-      --primary: hsl(220 70% 40%);
-      --primary-700: hsl(220 75% 48%);
-      --primary-900: hsl(220 80% 65%);
+  --primary-50: hsl(220 40% 6%);
+  --primary-100: hsl(220 40% 8%);
+  --primary-200: hsl(220 45% 12%);
+  --primary-400: hsl(220 60% 22%);
+  --primary: hsl(220 70% 40%);
+  --primary-700: hsl(220 75% 48%);
+  --primary-900: hsl(220 80% 65%);
 
-      --accent: hsl(18 90% 60%);
-      --accent-700: hsl(18 90% 45%);
+  --accent: hsl(18 90% 60%);
+  --accent-700: hsl(18 90% 45%);
 
-      --success: hsl(142 55% 55%);
-      --warning: hsl(45 90% 60%);
-      --danger: hsl(350 75% 65%);
+  --success: hsl(142 55% 55%);
+  --warning: hsl(45 90% 60%);
+  --danger: hsl(350 75% 65%);
 
-      --text: hsl(210 16% 95%);
-      --text-inverse: hsl(210 16% 10%);
-      --focus: hsl(210 100% 70%);
-    }
-  }
+  /* Swap text colors for dark bg */
+  --text: hsl(210 16% 95%);
+  --text-inverse: hsl(16, 20%, 89%);
+  --focus: hsl(210 100% 70%);
+}
 
-  /* Apply background + text globally */
-  body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: ui-sans-serif, system-ui, sans-serif;
-  }
+/* Apply background + text globally */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Example component styles */
@@ -76,20 +73,28 @@
   .btn-primary {
     @apply px-4 py-2 rounded-md font-semibold text-[var(--text-inverse)] bg-[var(--primary)] hover:bg-[var(--primary-700)];
   }
+
   .btn-accent {
     @apply px-4 py-2 rounded-md font-semibold text-[var(--text-inverse)] bg-[var(--accent)] hover:bg-[var(--accent-700)];
   }
+
   .card {
     @apply rounded-lg shadow-md p-4 bg-[var(--surface)];
   }
 }
 
-
 @layer utilities {
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out;
   }

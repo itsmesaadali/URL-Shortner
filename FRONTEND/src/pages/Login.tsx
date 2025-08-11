@@ -2,16 +2,21 @@ import LoginForm from "../components/LoginForm";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/user.api";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from '../store/store'; 
+import { login } from "../store/features/authSlice";
 
 export default function Login() {
   const navigate = useNavigate();
 
+  const auth = useSelector((state:RootState) => state.auth)
+  console.log(auth)
+  const dispatch = useDispatch()
   const handleLogin = async (email: string, password: string) => {
-  try {
-    const res = await loginUser(email, password);
+    try {
+      const res = await loginUser(email, password);
+      dispatch(login(res.data))
 
-    localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
 
     toast.success(`Welcome back, ${res.data.user.name}!`);
     navigate("/");
