@@ -5,26 +5,22 @@ import toast from "react-hot-toast";
 
 export default function Login() {
   const navigate = useNavigate();
-  // Example fake async login
+
   const handleLogin = async (email: string, password: string) => {
-    console.log("Login data:", { email, password });
-    try {
-      const res = await loginUser(email, password);
+  try {
+    const res = await loginUser(email, password);
 
-      if (!res.success) {
-        throw new Error(res.message || "Login failed");
-      }
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
 
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
+    toast.success(`Welcome back, ${res.data.user.name}!`);
+    navigate("/");
+  } catch (error: any) {
+      
+    toast.error(error.response?.data?.message || error.message);
+  }
+};
 
-      toast.success(`Welcome back, ${res.data.user.name}!`);
-
-      navigate("/");
-    } catch (error: any) {
-      toast.error( "Something went wrong");
-    }
-  };
 
   return (
     <section className="flex justify-center items-center min-h-screen px-4">

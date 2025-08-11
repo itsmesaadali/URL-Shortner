@@ -3,27 +3,19 @@ import InputField from "./UI/InputField";
 import Spinner from "./UI/LoadingSVG";
 
 interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
+  onSubmit: (email: string, password: string) => Promise<void>;
 }
 
 export default function LoginForm({ onSubmit }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
-    try {
-      onSubmit(email, password);
-    } catch (error: any) {
-      setError( error.response.data?.message||error?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+    await onSubmit(email, password); 
+    setLoading(false);
   };
 
   return (
@@ -44,8 +36,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
         onChange={setPassword}
         required
       />
-      {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
-      <button disabled={loading} className="btn-primary">
+      <button disabled={loading} className="btn-primary flex items-center justify-center gap-2">
         {loading && <Spinner />}
         {loading ? "Logging in..." : "Login"}
       </button>

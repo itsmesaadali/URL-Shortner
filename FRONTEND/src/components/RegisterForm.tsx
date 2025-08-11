@@ -11,20 +11,12 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
-    try {
-      onSubmit(name, email, password);
-    } catch (error: any) {
-      setError(error.response.data?.message || error?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit(name, email, password);
+    setLoading(false);
   };
 
   return (
@@ -52,9 +44,6 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
         onChange={setPassword}
         required
       />
-
-      {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
-
       <button disabled={loading} className="btn-primary">
         {loading && <Spinner />}
         {loading ? "Registering..." : "Register"}

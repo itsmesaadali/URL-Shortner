@@ -1,36 +1,42 @@
-import toast from "react-hot-toast";
-import { registerUser } from "../api/user.api";
 import RegisterForm from "../components/RegisterForm";
 import {Link, useNavigate } from 'react-router-dom'
+import { registerUser } from "../api/user.api";
+import toast from "react-hot-toast";
 
 
 export default function Register() {
 
   const navigate = useNavigate()
-  const handleRegister = async(
-    name: string,
-    email: string,
-    password: string,
-  ) => {
-    console.log("Register data:", { name, email, password });
-     try {
-      const res = await registerUser(name, email, password);
+ const handleRegister = async (
+  name: string,
+  email: string,
+  password: string
+) => {
+  try {
+    const res = await registerUser(name, email, password);
 
-      if (!res.success) {
-        throw new Error(res.message || "Register failed");
-      }
-
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-
-      toast.success(`Welcome back, ${res.data.user.name}!`);
-
-      navigate("/");
-    } catch (error: any) {
-      toast.error("Something went wrong");
-
+    if (!res.data || !res.data.accessToken) {
+      throw new Error(res?.message || "Registration failed");
     }
-  };
+
+    // Save tokens
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+
+    // Show success
+    toast.success(`Welcome, ${res.data.user.name}!`);
+    navigate("/");
+  } catch (error: any) {
+    const serverMessage =
+      error.response?.data?.message || // From ApiError backend
+      error.response?.data?.error ||   // Fallback
+      error.message ||                 // Axios default
+      "Registration failed";
+
+    toast.error(serverMessage);
+  }
+};
+
 
   return (
     <section className="flex justify-center items-center min-h-screen px-4">
