@@ -8,10 +8,11 @@ export const generateNanoId = (length) => {
 
 export const options = {
     httpOnly: true,
-    secure:true,
-    sameSite:'None',
+    secure: process.env.NODE_ENV === 'production', // only secure in prod
+    sameSite: 'None',
     maxAge: 1000 * 60 * 5    
 }
+
 
 export const verifyToken = (token) => {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)

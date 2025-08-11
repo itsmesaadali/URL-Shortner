@@ -16,17 +16,17 @@ export const createShortUrlWithoutUser = async(url) => {
     return shortUrl
 }
 
-export const createShortUrlWithUser = async(url, userId, slug= null) => {
-    const shortUrl = slug || generateNanoId(7)
-    if(!shortUrl) {
-        throw new ApiError(400, 'Short Url not generated')
-    }
+export const createShortUrlWithUser = async (url, userId, slug = null) => {
+  const shortUrl = slug || generateNanoId(7);
+  if (!shortUrl) {
+    throw new ApiError(400, "Short URL not generated");
+  }
 
-    await ShortUrl.create({
-        full_url:url,
-        short_url:shortUrl,
-        user:userId
-    })
+  await ShortUrl.create({
+    full_url: url,
+    short_url: shortUrl,
+    user: userId,
+  });
 
-    return shortUrl
-}
+  return shortUrl;
+};
