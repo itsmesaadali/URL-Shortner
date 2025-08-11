@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import shortUrlRoute from './routes/shorturl.route.js'
 import authRoutes from './routes/auth.route.js'
 import { redirectShortUrl } from './controllers/shorturl.controller.js'
+import { errorHandler } from './middlewares/error.middleware.js'
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use('/api/v1/auth', authRoutes)
 
 app.get('/:id',redirectShortUrl)
 
+app.use(errorHandler);
 
 
 

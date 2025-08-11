@@ -5,110 +5,107 @@ import { User } from "../models/user.model.js";
 import { generateAccessAndRefreshTokens } from "../utils/jwtToken.js";
 import { options } from "../utils/helper.js";
 
+/**
+ * @desc Register a new user
+ * @route POST /api/v1/auth/register
+ * @access Public
+ */
+export const registerUser = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
 
-const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+  // Validate required fields
+  if (!name?.trim() || !email?.trim() || !password?.trim()) {
+    throw new ApiError(400, "All fields (name, email, password) are required");
+  }
 
-    // Validation
-    if ([email, name, password].some((field) => field?.trim() === "")) {
-        throw new ApiError(400, 'All fields are required');
-    }
+  // Check if user already exists
+  const existedUser = await User.findOne({ email });
+  if (existedUser) {
+    throw new ApiError(409, "User with this email already exists");
+  }
 
-    // Check if user already exists
-    const existedUser = await User.findOne({email});
+  // Create user
+  const user = await User.create({ name, email, password });
 
-    if(existedUser) {
-        throw new ApiError(409, 'User with email already exists')
-    }
+  // Generate tokens
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
-    const user = await User.create({
-        name,
-        email,
-        password
-    })
+  // Fetch user without sensitive fields
+  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  if (!createdUser) {
+    throw new ApiError(500, "Failed to register user");
+  }
 
-    const {accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id)
-
-    const createdUser = await User.findById(user._id).select('-password -refreshToken')
-
-    if(!createdUser) {
-        throw new ApiError(500, 'Falied to register user')
-    }
-
-    return res
+  // Send response
+  return res
     .status(201)
-    .cookie('accessToken', accessToken, options)
-    .cookie('refreshToken', refreshToken, options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
-        new ApiResponse(201,{
-            user:createdUser,
-            accessToken,
-            refreshToken,
-            
-        },'User registered successfully')
-    )
-})
+      new ApiResponse(
+        201,
+        { user: createdUser, accessToken, refreshToken },
+        "User registered successfully"
+      )
+    );
+});
 
+/**
+ * @desc Login user
+ * @route POST /api/v1/auth/login
+ * @access Public
+ */
+export const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-const loginUser = asyncHandler(async (req, res) => {
+  // Validate inputs
+  if (!email?.trim() || !password?.trim()) {
+    throw new ApiError(400, "Email and password are required");
+  }
 
-    const {email, password } = req.body;
+  // Find user by email
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User does not exist");
+  }
 
-    if(!email && !password) {
-        throw new ApiError(400, 'email or password is required')
-    }
+  // Validate password
+  const isPasswordValid = await user.isPasswordCorrect(password);
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid user credentials");
+  }
 
-    const user = await User.findOne({email})
+  // Generate tokens
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
-    if(!user) {
-        throw new ApiError(400, 'user does not exist')
-    }
+  // Get safe user data
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
-    const isPasswordValid = await user.isPasswordCorrect(password)
-
-    if(!isPasswordValid) {
-        throw new ApiError(401, 'Invalid user credentials')
-    }
-
-    const {accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id)
-
-    const loggedInUser = await User.findById(user._id).select('-password -refreshToken')
-
-    return res
-    .status(201)
-    .cookie('accessToken', accessToken, options)
-    .cookie('refreshToken', refreshToken, options)
-    .json(
-        new ApiResponse(201,{
-            user:loggedInUser,
-            accessToken,
-            refreshToken,
-            
-        },'User logged in successfully')
-    )
-})
-
-const logoutUser = asyncHandler(async (req,res) => {
-    const updatedUser = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $unset:{
-                refreshToken:1
-            }
-        },
-        {
-            new:true
-        }
-    )
-
-    return res
+  // Send response
+  return res
     .status(200)
-    .clearCookie('accessToken',options)
-    .clearCookie('refreshToken',options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
-        new ApiResponse(200, 
-            {user:updatedUser},
-            "user logout successfully"
-        ))
-})
-export { registerUser, loginUser, logoutUser }
+      new ApiResponse(
+        200,
+        { user: loggedInUser, accessToken, refreshToken },
+        "User logged in successfully"
+      )
+    );
+});
+
+/**
+ * @desc Logout user
+ * @route POST /api/v1/auth/logout
+ * @access Private
+ */
+export const logoutUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, null, "User logged out successfully"));
+});
