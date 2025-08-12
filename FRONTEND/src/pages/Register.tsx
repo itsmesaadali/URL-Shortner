@@ -2,11 +2,14 @@ import RegisterForm from "../components/RegisterForm";
 import {Link, useNavigate } from 'react-router-dom'
 import { registerUser } from "../api/user.api";
 import toast from "react-hot-toast";
+import { useAppDispatch } from "../store/hooks";
+import { register } from "../store/features/authSlice";
 
 
 export default function Register() {
 
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
  const handleRegister = async (
   name: string,
   email: string,
@@ -14,17 +17,8 @@ export default function Register() {
 ) => {
   try {
     const res = await registerUser(name, email, password);
-
-    if (!res.data || !res.data.accessToken) {
-      throw new Error(res?.message || "Registration failed");
-    }
-
-    // Save tokens
-    localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
-
-    // Show success
-    toast.success(`Welcome, ${res.data.user.name}!`);
+    dispatch(register(res.data.user))
+    toast.success(res.message);   
     navigate("/");
   } catch (error: any) {
     const serverMessage =

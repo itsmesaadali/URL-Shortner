@@ -17,9 +17,6 @@ const userSchema = new mongoose.Schema(
             type:String,
             required:true
         },
-        refreshToken:{
-            type:String
-        }
     },{timestamps:true})
 
 userSchema.pre('save', async function(next) {
@@ -46,16 +43,5 @@ userSchema.methods.generateAccessToken = function() {
     )
 }
 
-userSchema.methods.generateRefreshToken = function() {
-    return jwt.sign(
-        {
-            _id: this._id,
-        },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
-        }
-    )
-}
 
 export const User = mongoose.model('User', userSchema )    

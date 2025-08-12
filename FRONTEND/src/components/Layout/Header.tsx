@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { Home, User, Sun, Moon } from "lucide-react";
+import { Home, Sun, Moon } from "lucide-react";
+import { useAppDispatch } from "../../store/hooks";
+import { fetchCurrentUser } from "../../store/features/authSlice"; // Import thunks 
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [darkMode, setDarkMode] = useState(false);
-
-// Load saved mode or system preference on mount
+const navigate = useNavigate();
+const dispatch = useAppDispatch()
+  // Load saved mode or system preference on mount
   useEffect(() => {
     const saved = localStorage.getItem("dark-mode");
     if (saved !== null) {
@@ -17,13 +21,25 @@ export default function Header() {
     }
   }, []);
 
-  // Toggle dark mode
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch]);
+
+  // Dark mode toggle
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     document.documentElement.classList.toggle("dark", newMode);
     localStorage.setItem("dark-mode", newMode.toString());
   };
+
+  // Logout handler
+ const handleLogout = async () => {
+  
+};
 
   return (
     <header className="bg-gray-900 text-[var(--text-inverse)] shadow-lg">
@@ -36,10 +52,37 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-6">
-          
-          <button className="flex items-center gap-1 hover:text-blue-400 transition">
-            <User className="h-5 w-5 text-[var(--text-inverse)]" /> Profile
-          </button>
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => navigate("/custom-url")}
+                className="hover:text-blue-400 transition"
+              >
+                Custom URL
+              </button>
+              <button
+                onClick={handleLogout}
+                className="hover:text-red-500 transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate("/login")}
+                className="hover:text-blue-400 transition"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="hover:text-blue-400 transition"
+              >
+                Register
+              </button>
+            </>
+          )}
 
           {/* Dark mode toggle */}
           <button
@@ -58,6 +101,3 @@ export default function Header() {
     </header>
   );
 }
-
-
-

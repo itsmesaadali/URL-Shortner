@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { generateAccessAndRefreshTokens } from "../utils/jwtToken.js";
+import { generateAccessTokens } from "../utils/jwtToken.js";
 import { options } from "../utils/helper.js";
 
 /**
@@ -28,10 +28,10 @@ export const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({ name, email, password });
 
   // Generate tokens
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+  const { accessToken } = await generateAccessTokens(user._id);
 
   // Fetch user without sensitive fields
-  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  const createdUser = await User.findById(user._id).select("-password");
   if (!createdUser) {
     throw new ApiError(500, "Failed to register user");
   }
@@ -40,11 +40,10 @@ export const registerUser = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
         201,
-        { user: createdUser, accessToken, refreshToken },
+        { user: createdUser, accessToken },
         "User registered successfully"
       )
     );
@@ -76,20 +75,19 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
 
   // Generate tokens
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+  const { accessToken } = await generateAccessTokens(user._id);
 
   // Get safe user data
-  const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select("-password");
 
   // Send response
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
         200,
-        { user: loggedInUser, accessToken, refreshToken },
+        { user: loggedInUser, accessToken },
         "User logged in successfully"
       )
     );
@@ -101,11 +99,22 @@ export const loginUser = asyncHandler(async (req, res) => {
  * @access Private
  */
 export const logoutUser = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
+  await User.findByIdAndUpdate(req.user._id, { $unset: { accessToken: 1 } }, { new: true });
 
   return res
     .status(200)
     .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, null, "User logged out successfully"));
+});
+
+/**
+ * @desc GetCurrent user
+ * @route POST /api/v1/auth/me
+ * @access Private
+ */
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });

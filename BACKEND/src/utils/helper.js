@@ -7,11 +7,12 @@ export const generateNanoId = (length) => {
 }
 
 export const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // only secure in prod
-    sameSite: 'None',
-    maxAge: 1000 * 60 * 5    
-}
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'none',
+  maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+};
+
 
 
 export const verifyToken = (token) => {

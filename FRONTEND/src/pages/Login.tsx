@@ -2,23 +2,17 @@ import LoginForm from "../components/LoginForm";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/user.api";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from '../store/store'; 
+import { useAppDispatch } from "../store/hooks";
 import { login } from "../store/features/authSlice";
 
 export default function Login() {
   const navigate = useNavigate();
-
-  const auth = useSelector((state:RootState) => state.auth)
-  console.log(auth)
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const handleLogin = async (email: string, password: string) => {
     try {
       const res = await loginUser(email, password);
-      dispatch(login(res.data))
-
-
-    toast.success(`Welcome back, ${res.data.user.name}!`);
+      dispatch(login(res.data.user))
+      toast.success(res.message);
     navigate("/");
   } catch (error: any) {
       
