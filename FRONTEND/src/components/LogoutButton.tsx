@@ -12,13 +12,13 @@ const LogoutButton = () => {
     try {
       await dispatch(logout()).unwrap();
       toast.success("Logged out successfully");
-      navigate("/login");
+      navigate("/");
     } catch (error: any) {
       toast.error(error || "Logout failed");
     }
   };
 
-  return <button onClick={handleLogout}>Logout</button>;
+  return <button onClick={handleLogout} className="hover:text-red-500 transition">Logout</button>;
 };
 
 export default LogoutButton;

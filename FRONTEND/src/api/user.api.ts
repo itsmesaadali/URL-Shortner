@@ -1,6 +1,7 @@
+// src/api/user.api.ts
 import axiosInstance from "../utils/axiosInstance";
 
-export interface AuthResponse {
+interface AuthResponse {
   statusCode: number;
   data: {
     user: {
@@ -16,7 +17,7 @@ export interface AuthResponse {
   success: boolean;
 }
 
-export interface LogoutResponse {
+interface LogoutResponse {
   statusCode: number;
   data: {
     user: {
@@ -31,22 +32,21 @@ export interface LogoutResponse {
   success: boolean;
 }
 
-// src/api/user.api.ts
 export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
   const { data } = await axiosInstance.post<AuthResponse>("/auth/login", { email, password });
-  localStorage.setItem("accessToken", data.data.accessToken); // Store only accessToken
+  localStorage.setItem("accessToken", data.data.accessToken);
   return data;
 };
 
 export const registerUser = async (name: string, email: string, password: string): Promise<AuthResponse> => {
   const { data } = await axiosInstance.post<AuthResponse>("/auth/register", { name, email, password });
-  localStorage.setItem("accessToken", data.data.accessToken); // Store only accessToken
+  localStorage.setItem("accessToken", data.data.accessToken);
   return data;
 };
 
 export const logoutUser = async (): Promise<LogoutResponse> => {
   const { data } = await axiosInstance.post<LogoutResponse>("/auth/logout");
-  localStorage.removeItem("accessToken"); // Clear accessToken
+  localStorage.removeItem("accessToken");
   return data;
 };
 

@@ -1,6 +1,6 @@
-// src/store/slices/authSlice.ts
+// src/store/features/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getCurrentUser, logoutUser } from '../../api/user.api'
+import { getCurrentUser, logoutUser } from "../../api/user.api";
 
 interface AuthState {
   user: null | {
@@ -11,27 +11,27 @@ interface AuthState {
     updatedAt: string;
   };
   isAuthenticated: boolean;
+  loading: boolean; // Add loading state
 }
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  loading: false, // Initialize loading as false
 };
 
-// Thunk for fetching current user
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
       const response = await getCurrentUser();
-      return response.data.user; // Return only the user object
+      return response.data.user;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch user");
     }
   }
 );
 
-// Thunk for logout
 export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
@@ -51,33 +51,43 @@ const authSlice = createSlice({
     login: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.loading = false; // Ensure loading is false after login
     },
     register: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.loading = false; // Ensure loading is false after register
     },
     getMe: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      state.loading = false; // Ensure loading is false after getMe
     },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      state.loading = false; // Ensure loading is false after logout
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true; // Set loading to true when fetching
+      })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.loading = false; // Set loading to false on success
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.loading = false; // Set loading to false on failure
       })
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.loading = false; // Ensure loading is false after logout
       });
   },
 });

@@ -1,7 +1,7 @@
 // src/App.tsx
 import { useEffect } from "react";
-import { useAppDispatch } from "./store/hooks";
-import { fetchCurrentUser } from './store/features/authSlice'
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { fetchCurrentUser } from "./store/features/authSlice";
 import { HomePage } from "./pages/HomePage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
@@ -9,9 +9,13 @@ import Register from "./pages/Register";
 import { Toaster } from "react-hot-toast";
 import { NotFound } from "./pages/NotFound";
 import { AppLayout } from "./components/Layout/AppLayout";
+import type { RootState } from "./store/store";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Spinner from "./components/UI/LoadingSVG";
 
 function App() {
-  const dispatch = useAppDispatch ();
+  const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -19,6 +23,11 @@ function App() {
       dispatch(fetchCurrentUser());
     }
   }, [dispatch]);
+
+  // Render nothing or a loading state while auth is being checked
+  if (loading) {
+    return <Spinner/>
+  }
 
   return (
     <>
@@ -40,6 +49,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/custom-url" element={<div>Custom URL Page</div>} /> {/* Placeholder */}
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
