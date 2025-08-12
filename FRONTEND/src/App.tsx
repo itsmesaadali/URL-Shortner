@@ -12,6 +12,7 @@ import { AppLayout } from "./components/Layout/AppLayout";
 import type { RootState } from "./store/store";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Spinner from "./components/UI/LoadingSVG";
+import { CustomUrl } from "./pages/CustomUrl";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -50,7 +51,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/custom-url" element={<div>Custom URL Page</div>} /> {/* Placeholder */}
+              <Route path="/custom-url" element={<CustomUrl/>} /> {/* Placeholder */}
             </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
